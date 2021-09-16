@@ -1,0 +1,70 @@
+# Install Mongodb on Ubuntu
+---
+- hosts: all
+  become: true
+  vars_files:
+    - vars/version.yml
+  tasks:
+        - name: apt_key
+          apt_key:
+            url: "{{ mongo_apt_key_url }}"
+            state: present
+
+        - name: apt_repository
+          apt_repository:
+            repo: "{{ mongo_apt_repository }}"
+            state: present
+            filename: "mongodb-org-{{ mongo_version }}"
+
+        - name: install mongodb
+          apt:
+           update_cache: true 
+           name: mongodb-org
+
+        - name: enable mongodb service in startup
+          systemd:
+            name: mongod
+            enabled: yes
+            masked: no
+
+        - name: start mongodb service
+          systemd:
+            name: mongod
+            state: started
+
+        - name: install pip3 Package
+          apt:
+           name: "{{ item }}"
+          with_items:
+            - python3-pip
+
+        - name: install pymongo
+          pip:
+            name: pymongo
+
+        - name: mongodb create new user
+          mongodb_user:
+            name: "{{ mongo_user }}"
+            password: "{{ mongo_password }}"
+            database: admin
+            state: present
+            roles:
+              - db: admin
+                role: readWriteAnyDatabase
+              - db: admin
+                role: dbAdminAnyDatabase
+              - db: admin
+                role: userAdminAnyDatabase  
+
+        - name: enabled security in mongodb
+          blockinfile:
+              path: /etc/mongod.conf
+              backup: yes
+              block: |
+                security:
+                  authorization: "enabled"
+
+        - name: restart mongodb service
+          systemd:
+            name: mongod
+            state: restarted

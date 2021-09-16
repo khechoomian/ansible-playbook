@@ -1,0 +1,6 @@
+---
+mongo_version:         4.2
+mongo_apt_key_url:     https://www.mongodb.org/static/pgp/server-{{ mongo_version }}.asc
+mongo_apt_repository:  deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/{{mongo_version}} multiverse
+mongo_user:            admin
+mongo_password:        admin
