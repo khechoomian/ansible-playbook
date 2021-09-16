@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+    - vars/images.yml
+  tasks:
+    - name: Pull Docker images
+      docker_image:
+        name: "{{ container_image }}"
+        source: pull
